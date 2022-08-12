@@ -13,34 +13,36 @@ public class ServerExample {
         int port = 8080;
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            try (
-                    Socket clientSocket = serverSocket.accept();
-                    PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                    BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
-            ) {
-                System.out.printf("server: New connection accepted from %s:%d%n",
-                        clientSocket.getRemoteSocketAddress(), clientSocket.getPort());
+            while(true) {
+                try (
+                        Socket clientSocket = serverSocket.accept();
+                        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
+                ) {
+                    System.out.printf("server: New connection accepted from %s:%d%n",
+                            clientSocket.getRemoteSocketAddress(), clientSocket.getPort());
 
-                VerboseUserInteraction me = new VerboseUserInteraction("SERVER", in ,out);
+                    VerboseUserInteraction me = new VerboseUserInteraction("SERVER", in, out);
 
-                me.receive();
-                me.send("hello");
+                    me.receive();
+                    me.send("hello");
 
-                me.send("Write your name");
-                String nameAnswer = me.receive();
+                    me.send("Write your name");
+                    String nameAnswer = me.receive();
 
-                me.send("Are you child? (yes/no)");
-                String childAnswer = me.receive().toLowerCase();
+                    me.send("Are you child? (yes/no)");
+                    String childAnswer = me.receive().toLowerCase();
 
-                if ("yes".equals(childAnswer)){
-                    me.send(String.format("Welcome to the kids area, %s! Let's play!", nameAnswer));
-                }else if ("no".equals(childAnswer)) {
-                    me.send(String.format(
-                            "Welcome to the adult zone, %s! Have a good rest,or a good working day!",
-                            nameAnswer));
+                    if ("yes".equals(childAnswer)) {
+                        me.send(String.format("Welcome to the kids area, %s! Let's play!", nameAnswer));
+                    } else if ("no".equals(childAnswer)) {
+                        me.send(String.format(
+                                "Welcome to the adult zone, %s! Have a good rest,or a good working day!",
+                                nameAnswer));
+                    }
+                    me.receive();
+
                 }
-                me.receive();
-
             }
         } catch (IOException ex) {
             ex.printStackTrace();
